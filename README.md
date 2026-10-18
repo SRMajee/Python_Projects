@@ -6,7 +6,7 @@ A rigorous, hands-on roadmap implementing production-grade systems, concurrency 
 
 | Phase | Project Name | Core Concepts | Target Size (LOC) | Key Rules / Constraints | Status | Project Brief |
 | :--- | :--- | :--- | :--- | :--- | :---: | :--- |
-| [Phase_1: Object-Oriented Foundations](./Phase_1) | [In-Memory Key-Value Store](./Phase_1/in_memory_kv_store) | `abc, dataclasses, typing` | 80-120 lines | Zero external libs, strict type hints | ⏳ Not Started | Build a Redis-lite with TTL and transactions. |
+| [Phase_1: Object-Oriented Foundations](./Phase_1) | [In-Memory Key-Value Store](./Phase_1/in_memory_kv_store) | `abc, dataclasses, typing` | 80-120 lines | Zero external libs, strict type hints | ✅ Completed | Build a Redis-lite with TTL and transactions. |
 | [Phase_1: Object-Oriented Foundations](./Phase_1) | [Parking Lot Design](./Phase_1/parking_lot) | `Inheritance, Composition, Factory` | 150-200 lines | Must be easily extensible to new vehicle types | ⏳ Not Started | Design a multi-level parking lot with different spot sizes and dynamic pricing. |
 | [Phase_2: Design Patterns & Architecture](./Phase_2) | [Task Scheduler](./Phase_2/task_scheduler) | `Strategy Pattern, DAGs, Observer` | 150-250 lines | Dependencies must execute in Topological order | ⏳ Not Started | Build a cron-like executor that respects task dependencies and priorities. |
 | [Phase_2: Design Patterns & Architecture](./Phase_2) | [Splitwise Clone (Expense Sharing)](./Phase_2/splitwise_clone) | `OOP, State Management` | 200-300 lines | Must support EXACT, PERCENT, and EQUAL split types | ⏳ Not Started | Manage balances between users dynamically with simplified debt graphs. |

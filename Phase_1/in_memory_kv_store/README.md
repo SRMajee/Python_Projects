@@ -1,7 +1,7 @@
 # In-Memory Key-Value Store
 
 > **Phase**: [Phase_1: Object-Oriented Foundations](../Readme.md)  
-> **Status**: `Not Started`  
+> **Status**: `Completed`  
 > **Target Size**: `80-120 lines`
 
 ## Overview
