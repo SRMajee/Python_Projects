@@ -1,23 +1,26 @@
-# Ride-Sharing Engine (Uber Clone)
+# 🚗 Ride-Sharing Engine
 
-> **Phase**: [Phase_6: Domain-Specific LLD](../Readme.md)  
-> **Status**: `Not Started`  
+> **Phase**: [Phase_6: Domain-Specific LLD](../Readme.md)
+> **Status**: `Completed`
 > **Target Size**: `250-300 lines`
 
-## Overview
-Match riders to nearest drivers using a coordinate grid system.
+## 📌 Project Overview
+Uber-like ride matching engine with grid-based spatial indexing for nearest-driver lookup, state machine trip lifecycle (REQUESTED → MATCHED → IN_PROGRESS → COMPLETED/CANCELLED), and surge pricing.
 
-## Core Concepts & Patterns
-- `Spatial Grids, State Machines`
+## 📂 Structure
+```text
+ride_sharing_engine/
+├── python/
+│   ├── ride_engine.py, test_ride_engine.py, interview_solution.py
+├── cpp/
+│   ├── solution.cpp, interview_solution.cpp
+└── rust/
+    ├── solution.rs, interview_solution.rs
+```
 
-## Key Rules & Constraints
-- Must handle concurrent booking requests
-
-## Structure
-- [`ride_sharing.py`](./ride_sharing.py): Core implementation and class definitions.
-- [`test_ride_sharing.py`](./test_ride_sharing.py): Unit test suite and verification scenarios.
-
-## Running Tests
+## 🚀 Running
 ```bash
-python test_ride_sharing.py
+python python/test_ride_engine.py
+g++ -std=c++17 -pthread cpp/solution.cpp -o cpp/solution && ./cpp/solution
+rustc rust/solution.rs -o rust/solution && ./rust/solution
 ```

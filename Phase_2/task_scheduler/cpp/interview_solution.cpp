@@ -1,95 +1,54 @@
-/**
- * Task Scheduler - Concise Interview Solution (C++17)
+/*
+ * Task Scheduler - Interview Solution (C++)
  *
  * 1. Primary Capabilities:
- * - Graph-based dependency execution using Kahn's algorithm with std::priority_queue.
- * - Priority ordering for ready tasks (higher priority executes first).
- * - Lightweight lambda action execution and state tracking.
+ *   - DAG topological execution via Kahn's algorithm with priority_queue
+ *   - Higher-priority tasks execute first among independent ready tasks
+ *   - Concurrency Extension: dispatch ready tasks to thread pool instead of sequential
  *
  * 2. Error Handling:
- * - Throws std::runtime_error("Cycle detected!") if order.size() != tasks.size().
- * - Catches action exceptions, marks task FAILED, and propagates error.
+ *   - runtime_error on cycle detection (order.size() != tasks.size())
  *
  * 3. Out Of Scope:
- * - Multi-threaded thread pool worker concurrency.
- * - Persistent database / file serialization.
+ *   - Distributed workers, persistent task DB, cron expression parsing
  */
+#include<bits/stdc++.h>
+using namespace std;
 
-#include <iostream>
-#include <vector>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <queue>
-#include <functional>
-#include <cassert>
-#include <stdexcept>
-
-struct Task {
-    std::string id;
-    int priority{0};
-    std::unordered_set<std::string> dependencies;
-    std::function<void()> action;
-};
+struct Task { string id; int priority{0}; unordered_set<string> deps; function<void()> action; };
 
 class TaskScheduler {
-    std::unordered_map<std::string, Task> tasks;
-
+    unordered_map<string, Task> tasks;
 public:
-    void add_task(Task task) { tasks.emplace(task.id, std::move(task)); }
-
-    std::vector<std::string> execute() {
-        std::unordered_map<std::string, int> in_degree;
-        std::unordered_map<std::string, std::vector<std::string>> graph;
-
-        for (const auto& [id, task] : tasks) {
-            in_degree[id] = task.dependencies.size();
-            for (const auto& dep : task.dependencies) graph[dep].push_back(id);
-        }
-
-        auto comp = [this](const std::string& a, const std::string& b) {
-            if (tasks.at(a).priority == tasks.at(b).priority) return a > b;
-            return tasks.at(a).priority < tasks.at(b).priority;
+    void add(Task t) { tasks.emplace(t.id, move(t)); }
+    vector<string> execute() {
+        unordered_map<string, int> deg;
+        unordered_map<string, vector<string>> graph;
+        for (auto& [id,t] : tasks) { deg[id] = t.deps.size(); for (auto& d : t.deps) graph[d].push_back(id); }
+        auto cmp = [&](const string& a, const string& b) {
+            return tasks.at(a).priority == tasks.at(b).priority ? a > b : tasks.at(a).priority < tasks.at(b).priority;
         };
-        std::priority_queue<std::string, std::vector<std::string>, decltype(comp)> pq(comp);
-
-        for (const auto& [id, deg] : in_degree) {
-            if (deg == 0) pq.push(id);
-        }
-
-        std::vector<std::string> order;
+        priority_queue<string, vector<string>, decltype(cmp)> pq(cmp);
+        for (auto& [id,d] : deg) if (d==0) pq.push(id);
+        vector<string> order;
         while (!pq.empty()) {
-            std::string curr = pq.top();
-            pq.pop();
-            order.push_back(curr);
-            if (tasks.at(curr).action) tasks.at(curr).action();
-
-            for (const auto& next : graph[curr]) {
-                if (--in_degree[next] == 0) pq.push(next);
-            }
+            string c = pq.top(); pq.pop(); order.push_back(c);
+            if (tasks.at(c).action) tasks.at(c).action();
+            for (auto& n : graph[c]) if (--deg[n]==0) pq.push(n);
         }
-
-        if (order.size() != tasks.size()) throw std::runtime_error("Cycle detected!");
+        if (order.size() != tasks.size()) throw runtime_error("Cycle!");
         return order;
     }
 };
 
 int main() {
-    TaskScheduler scheduler;
-    std::vector<std::string> log;
-
-    scheduler.add_task(Task{"build", 1, {}, [&log]() { log.push_back("build"); }});
-    scheduler.add_task(Task{"test", 1, {"build"}, [&log]() { log.push_back("test"); }});
-    scheduler.add_task(Task{"lint", 2, {"build"}, [&log]() { log.push_back("lint"); }});
-    scheduler.add_task(Task{"deploy", 0, {"test", "lint"}, [&log]() { log.push_back("deploy"); }});
-
-    auto order = scheduler.execute();
-    assert(order.size() == 4);
-    assert(order[0] == "build");
-    assert(order[1] == "lint");
-    assert(order[2] == "test");
-    assert(order[3] == "deploy");
-
-    std::cout << "Interview C++ TaskScheduler passed!" << std::endl;
-    return 0;
+    TaskScheduler s;
+    vector<string> log;
+    s.add({"build",1,{},[&]{log.push_back("build");}});
+    s.add({"test",1,{"build"},[&]{log.push_back("test");}});
+    s.add({"lint",2,{"build"},[&]{log.push_back("lint");}});
+    s.add({"deploy",0,{"test","lint"},[&]{log.push_back("deploy");}});
+    auto order = s.execute();
+    assert(order == (vector<string>{"build","lint","test","deploy"}));
+    cout << "Interview C++ TaskScheduler passed!" << endl;
 }

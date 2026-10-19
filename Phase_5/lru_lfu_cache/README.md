@@ -1,23 +1,26 @@
-# O(1) LRU & LFU Cache
+# 🗄️ O(1) LRU & LFU Cache
 
-> **Phase**: [Phase_5: Advanced Data Structures](../Readme.md)  
-> **Status**: `Not Started`  
+> **Phase**: [Phase_5: Advanced Data Structures](../Readme.md)
+> **Status**: `Completed`
 > **Target Size**: `100-150 lines`
 
-## Overview
-Implement a cache library with multiple eviction strategies.
+## 📌 Project Overview
+Strict O(1) cache implementations: LRU using HashMap + Doubly Linked List, LFU using HashMap + Frequency bucket DLLs with LRU tie-breaking within same frequency.
 
-## Core Concepts & Patterns
-- `Doubly Linked Lists, Hash Maps`
+## 📂 Structure
+```text
+lru_lfu_cache/
+├── python/
+│   ├── cache.py, test_cache.py, interview_solution.py
+├── cpp/
+│   ├── solution.cpp, interview_solution.cpp
+└── rust/
+    ├── solution.rs, interview_solution.rs
+```
 
-## Key Rules & Constraints
-- Strict O(1) time complexity for get and put
-
-## Structure
-- [`cache.py`](./cache.py): Core implementation and class definitions.
-- [`test_cache.py`](./test_cache.py): Unit test suite and verification scenarios.
-
-## Running Tests
+## 🚀 Running
 ```bash
-python test_cache.py
+python python/test_cache.py
+g++ -std=c++17 -pthread cpp/solution.cpp -o cpp/solution && ./cpp/solution
+rustc rust/solution.rs -o rust/solution && ./rust/solution
 ```

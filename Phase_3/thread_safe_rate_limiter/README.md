@@ -1,23 +1,26 @@
-# Thread-Safe Rate Limiter
+# 🚦 Thread-Safe Rate Limiter
 
-> **Phase**: [Phase_3: Concurrency & Reliability](../Readme.md)  
-> **Status**: `Not Started`  
+> **Phase**: [Phase_3: Concurrency & Reliability](../Readme.md)
+> **Status**: `Completed`
 > **Target Size**: `100-150 lines`
 
-## Overview
-Implement Token Bucket and Sliding Window rate limiting algorithms for APIs.
+## 📌 Project Overview
+Implements Token Bucket and Sliding Window (Log + Counter) rate limiting algorithms with per-key isolation. All algorithms are thread-safe via mutex/lock protection.
 
-## Core Concepts & Patterns
-- `threading, Locks, Sliding Window`
+## 📂 Structure
+```text
+thread_safe_rate_limiter/
+├── python/
+│   ├── rate_limiter.py, test_rate_limiter.py, interview_solution.py
+├── cpp/
+│   ├── solution.cpp, interview_solution.cpp
+└── rust/
+    ├── solution.rs, interview_solution.rs
+```
 
-## Key Rules & Constraints
-- Must be thread-safe
-
-## Structure
-- [`rate_limiter.py`](./rate_limiter.py): Core implementation and class definitions.
-- [`test_rate_limiter.py`](./test_rate_limiter.py): Unit test suite and verification scenarios.
-
-## Running Tests
+## 🚀 Running
 ```bash
-python test_rate_limiter.py
+python python/test_rate_limiter.py
+g++ -std=c++17 -pthread cpp/solution.cpp -o cpp/solution && ./cpp/solution
+rustc rust/solution.rs -o rust/solution && ./rust/solution
 ```

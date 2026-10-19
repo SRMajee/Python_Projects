@@ -1,23 +1,26 @@
-# Async Web Crawler
+# 🕷️ Async Web Crawler
 
-> **Phase**: [Phase_3: Concurrency & Reliability](../Readme.md)  
-> **Status**: `Not Started`  
+> **Phase**: [Phase_3: Concurrency & Reliability](../Readme.md)
+> **Status**: `Completed`
 > **Target Size**: `100-150 lines`
 
-## Overview
-A highly concurrent crawler handling rate limits and robot.txt asynchronously.
+## 📌 Project Overview
+BFS-based concurrent web crawler with depth limiting, URL deduplication, and configurable concurrency. Python uses asyncio + semaphore, C++ and Rust use thread pools with condition variables.
 
-## Core Concepts & Patterns
-- `asyncio, aiohttp, queues`
+## 📂 Structure
+```text
+async_web_crawler/
+├── python/
+│   ├── crawler.py, test_crawler.py, interview_solution.py
+├── cpp/
+│   ├── solution.cpp, interview_solution.cpp
+└── rust/
+    ├── solution.rs, interview_solution.rs
+```
 
-## Key Rules & Constraints
-- Max concurrent connections enforced
-
-## Structure
-- [`crawler.py`](./crawler.py): Core implementation and class definitions.
-- [`test_crawler.py`](./test_crawler.py): Unit test suite and verification scenarios.
-
-## Running Tests
+## 🚀 Running
 ```bash
-python test_crawler.py
+python python/test_crawler.py
+g++ -std=c++17 -pthread cpp/solution.cpp -o cpp/solution && ./cpp/solution
+rustc rust/solution.rs -o rust/solution && ./rust/solution
 ```

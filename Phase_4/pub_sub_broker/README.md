@@ -1,23 +1,26 @@
-# Pub-Sub Message Broker
+# 📨 Pub-Sub Message Broker
 
-> **Phase**: [Phase_4: SDE 2 System Simulation](../Readme.md)  
-> **Status**: `Not Started`  
+> **Phase**: [Phase_4: SDE 2 System Simulation](../Readme.md)
+> **Status**: `Completed`
 > **Target Size**: `200-250 lines`
 
-## Overview
-Build an in-memory Kafka clone handling publishing and subscribing events.
+## 📌 Project Overview
+In-memory Kafka-like message broker with partitioned topics, consumer groups with independent offset tracking, key-hash or round-robin partition assignment, and at-least-once delivery semantics.
 
-## Core Concepts & Patterns
-- `Generators, Observer Pattern`
+## 📂 Structure
+```text
+pub_sub_broker/
+├── python/
+│   ├── broker.py, test_broker.py, interview_solution.py
+├── cpp/
+│   ├── solution.cpp, interview_solution.cpp
+└── rust/
+    ├── solution.rs, interview_solution.rs
+```
 
-## Key Rules & Constraints
-- Simulates partitioned topics and consumer groups
-
-## Structure
-- [`broker.py`](./broker.py): Core implementation and class definitions.
-- [`test_broker.py`](./test_broker.py): Unit test suite and verification scenarios.
-
-## Running Tests
+## 🚀 Running
 ```bash
-python test_broker.py
+python python/test_broker.py
+g++ -std=c++17 -pthread cpp/solution.cpp -o cpp/solution && ./cpp/solution
+rustc rust/solution.rs -o rust/solution && ./rust/solution
 ```

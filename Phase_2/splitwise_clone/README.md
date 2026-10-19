@@ -1,23 +1,26 @@
 # Splitwise Clone (Expense Sharing)
 
-> **Phase**: [Phase_2: Design Patterns & Architecture](../Readme.md)  
-> **Status**: `Not Started`  
+> **Phase**: [Phase_2: Design Patterns & Architecture](../Readme.md)
+> **Status**: `Completed`
 > **Target Size**: `200-300 lines`
 
-## Overview
-Manage balances between users dynamically with simplified debt graphs.
+## 📌 Project Overview
+Multi-user expense manager with EQUAL, EXACT, and PERCENT split strategies. Tracks pairwise balances and supports min-cash-flow debt simplification.
 
-## Core Concepts & Patterns
-- `OOP, State Management`
+## 📂 Structure
+```text
+splitwise_clone/
+├── python/
+│   ├── splitwise.py, test_splitwise.py, interview_solution.py
+├── cpp/
+│   ├── solution.cpp, interview_solution.cpp
+└── rust/
+    ├── solution.rs, interview_solution.rs
+```
 
-## Key Rules & Constraints
-- Must support EXACT, PERCENT, and EQUAL split types
-
-## Structure
-- [`splitwise.py`](./splitwise.py): Core implementation and class definitions.
-- [`test_splitwise.py`](./test_splitwise.py): Unit test suite and verification scenarios.
-
-## Running Tests
+## 🚀 Running
 ```bash
-python test_splitwise.py
+python python/test_splitwise.py
+g++ -std=c++17 cpp/solution.cpp -o cpp/solution && ./cpp/solution
+rustc rust/solution.rs -o rust/solution && ./rust/solution
 ```

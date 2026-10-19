@@ -1,23 +1,26 @@
-# Board Game Engine (Snake & Ladder / Chess)
+# 🎲 Board Game Engine
 
-> **Phase**: [Phase_6: Domain-Specific LLD](../Readme.md)  
-> **Status**: `Not Started`  
+> **Phase**: [Phase_6: Domain-Specific LLD](../Readme.md)
+> **Status**: `Completed`
 > **Target Size**: `200-350 lines`
 
-## Overview
-Build an extensible board game framework.
+## 📌 Project Overview
+Command-pattern extensible board game framework implementing Snake & Ladder with undo/redo support, configurable board, dice rolling, turn management, and win detection.
 
-## Core Concepts & Patterns
-- `2D Arrays, Command Pattern`
+## 📂 Structure
+```text
+board_game_engine/
+├── python/
+│   ├── game_engine.py, test_game_engine.py, interview_solution.py
+├── cpp/
+│   ├── solution.cpp, interview_solution.cpp
+└── rust/
+    ├── solution.rs, interview_solution.rs
+```
 
-## Key Rules & Constraints
-- Must validate all moves strictly
-
-## Structure
-- [`board_game.py`](./board_game.py): Core implementation and class definitions.
-- [`test_board_game.py`](./test_board_game.py): Unit test suite and verification scenarios.
-
-## Running Tests
+## 🚀 Running
 ```bash
-python test_board_game.py
+python python/test_game_engine.py
+g++ -std=c++17 -pthread cpp/solution.cpp -o cpp/solution && ./cpp/solution
+rustc rust/solution.rs -o rust/solution && ./rust/solution
 ```

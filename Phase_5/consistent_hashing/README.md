@@ -1,23 +1,26 @@
-# Consistent Hashing Ring
+# 🔗 Consistent Hashing Ring
 
-> **Phase**: [Phase_5: Advanced Data Structures](../Readme.md)  
-> **Status**: `Not Started`  
+> **Phase**: [Phase_5: Advanced Data Structures](../Readme.md)
+> **Status**: `Completed`
 > **Target Size**: `100-150 lines`
 
-## Overview
-Simulate a load balancer distributing requests to server nodes.
+## 📌 Project Overview
+Consistent hash ring with virtual nodes for uniform key distribution. Supports dynamic node addition/removal with minimal key redistribution. O(log n) lookups via sorted data structures.
 
-## Core Concepts & Patterns
-- `bisect, hashing`
+## 📂 Structure
+```text
+consistent_hashing/
+├── python/
+│   ├── consistent_hash.py, test_consistent_hash.py, interview_solution.py
+├── cpp/
+│   ├── solution.cpp, interview_solution.cpp
+└── rust/
+    ├── solution.rs, interview_solution.rs
+```
 
-## Key Rules & Constraints
-- Must handle node addition/removal gracefully
-
-## Structure
-- [`hash_ring.py`](./hash_ring.py): Core implementation and class definitions.
-- [`test_hash_ring.py`](./test_hash_ring.py): Unit test suite and verification scenarios.
-
-## Running Tests
+## 🚀 Running
 ```bash
-python test_hash_ring.py
+python python/test_consistent_hash.py
+g++ -std=c++17 -pthread cpp/solution.cpp -o cpp/solution && ./cpp/solution
+rustc rust/solution.rs -o rust/solution && ./rust/solution
 ```

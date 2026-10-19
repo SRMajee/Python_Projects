@@ -1,115 +1,64 @@
-/**
- * Task Scheduler - Complete Solution with Tests (C++17)
- * Features Strategy pattern, Observer notifications, and unit test suite.
- */
-
-#include <iostream>
-#include <vector>
-#include <string>
-#include <unordered_map>
-#include <unordered_set>
-#include <queue>
-#include <functional>
-#include <memory>
-#include <cassert>
-#include <stdexcept>
+#include<bits/stdc++.h>
+using namespace std;
 
 enum class TaskStatus { PENDING, RUNNING, COMPLETED, FAILED };
 
 struct Task {
-    std::string id;
-    int priority{0};
-    std::unordered_set<std::string> dependencies;
-    std::function<void()> action;
-    TaskStatus status{TaskStatus::PENDING};
-
-    Task(std::string id_, int priority_, std::unordered_set<std::string> deps, std::function<void()> act)
-        : id(std::move(id_)), priority(priority_), dependencies(std::move(deps)), action(std::move(act)) {}
+    string id; int priority{0}; unordered_set<string> dependencies;
+    function<void()> action; TaskStatus status{TaskStatus::PENDING};
+    Task(string id_, int p, unordered_set<string> d, function<void()> a)
+        : id(move(id_)), priority(p), dependencies(move(d)), action(move(a)) {}
 };
 
 class TaskObserver {
 public:
     virtual ~TaskObserver() = default;
-    virtual void on_status_change(const std::string& task_id, TaskStatus old_s, TaskStatus new_s) = 0;
+    virtual void on_status_change(const string& id, TaskStatus old_s, TaskStatus new_s) = 0;
 };
 
 class TaskScheduler {
-    std::unordered_map<std::string, Task> tasks;
-    std::vector<std::shared_ptr<TaskObserver>> observers;
-
-    void notify(const std::string& id, TaskStatus old_s, TaskStatus new_s) {
-        for (auto& obs : observers) obs->on_status_change(id, old_s, new_s);
-    }
-
+    unordered_map<string, Task> tasks;
+    vector<shared_ptr<TaskObserver>> observers;
+    void notify(const string& id, TaskStatus o, TaskStatus n) { for (auto& obs : observers) obs->on_status_change(id,o,n); }
 public:
-    void add_task(Task task) { tasks.emplace(task.id, std::move(task)); }
-    void add_observer(std::shared_ptr<TaskObserver> obs) { observers.push_back(obs); }
-
-    std::vector<std::string> execute() {
-        std::unordered_map<std::string, int> in_degree;
-        std::unordered_map<std::string, std::vector<std::string>> graph;
-
-        for (const auto& [id, task] : tasks) {
-            in_degree[id] = task.dependencies.size();
-            for (const auto& dep : task.dependencies) graph[dep].push_back(id);
-        }
-
-        auto comp = [this](const std::string& a, const std::string& b) {
-            if (tasks.at(a).priority == tasks.at(b).priority) return a > b;
-            return tasks.at(a).priority < tasks.at(b).priority;
+    void add_task(Task t) { tasks.emplace(t.id, move(t)); }
+    void add_observer(shared_ptr<TaskObserver> o) { observers.push_back(o); }
+    vector<string> execute() {
+        unordered_map<string, int> deg;
+        unordered_map<string, vector<string>> graph;
+        for (auto& [id,t] : tasks) { deg[id]=t.dependencies.size(); for (auto& d:t.dependencies) graph[d].push_back(id); }
+        auto cmp = [&](const string& a, const string& b) {
+            return tasks.at(a).priority==tasks.at(b).priority ? a>b : tasks.at(a).priority<tasks.at(b).priority;
         };
-        std::priority_queue<std::string, std::vector<std::string>, decltype(comp)> pq(comp);
-
-        for (const auto& [id, deg] : in_degree) {
-            if (deg == 0) pq.push(id);
-        }
-
-        std::vector<std::string> order;
+        priority_queue<string, vector<string>, decltype(cmp)> pq(cmp);
+        for (auto& [id,d]:deg) if (d==0) pq.push(id);
+        vector<string> order;
         while (!pq.empty()) {
-            std::string curr = pq.top();
-            pq.pop();
-            order.push_back(curr);
-
-            auto& task = tasks.at(curr);
-            notify(curr, task.status, TaskStatus::RUNNING);
-            task.status = TaskStatus::RUNNING;
-
+            string c = pq.top(); pq.pop(); order.push_back(c);
+            auto& task = tasks.at(c);
+            notify(c, task.status, TaskStatus::RUNNING); task.status = TaskStatus::RUNNING;
             try {
                 if (task.action) task.action();
-                notify(curr, task.status, TaskStatus::COMPLETED);
-                task.status = TaskStatus::COMPLETED;
+                notify(c, task.status, TaskStatus::COMPLETED); task.status = TaskStatus::COMPLETED;
             } catch (...) {
-                notify(curr, task.status, TaskStatus::FAILED);
-                task.status = TaskStatus::FAILED;
-                throw;
+                notify(c, task.status, TaskStatus::FAILED); task.status = TaskStatus::FAILED; throw;
             }
-
-            for (const auto& next : graph[curr]) {
-                if (--in_degree[next] == 0) pq.push(next);
-            }
+            for (auto& n:graph[c]) if (--deg[n]==0) pq.push(n);
         }
-
-        if (order.size() != tasks.size()) throw std::runtime_error("Cycle detected in dependencies!");
+        if (order.size()!=tasks.size()) throw runtime_error("Cycle detected!");
         return order;
     }
 };
 
 int main() {
-    TaskScheduler scheduler;
-    std::vector<std::string> log;
-
-    scheduler.add_task(Task("build", 1, {}, [&log]() { log.push_back("build"); }));
-    scheduler.add_task(Task("test", 1, {"build"}, [&log]() { log.push_back("test"); }));
-    scheduler.add_task(Task("lint", 2, {"build"}, [&log]() { log.push_back("lint"); }));
-    scheduler.add_task(Task("deploy", 0, {"test", "lint"}, [&log]() { log.push_back("deploy"); }));
-
-    auto order = scheduler.execute();
-    assert(order.size() == 4);
-    assert(order[0] == "build");
-    assert(order[1] == "lint");
-    assert(order[2] == "test");
-    assert(order[3] == "deploy");
-
-    std::cout << "Complete C++ TaskScheduler tests passed!" << std::endl;
-    return 0;
+    TaskScheduler s;
+    vector<string> log;
+    s.add_task(Task("build",1,{},[&]{log.push_back("build");}));
+    s.add_task(Task("test",1,{"build"},[&]{log.push_back("test");}));
+    s.add_task(Task("lint",2,{"build"},[&]{log.push_back("lint");}));
+    s.add_task(Task("deploy",0,{"test","lint"},[&]{log.push_back("deploy");}));
+    auto order = s.execute();
+    assert(order.size()==4); assert(order[0]=="build"); assert(order[1]=="lint");
+    assert(order[2]=="test"); assert(order[3]=="deploy");
+    cout << "Complete C++ TaskScheduler tests passed!" << endl;
 }

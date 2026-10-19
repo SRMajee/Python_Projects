@@ -1,23 +1,26 @@
-# Custom Thread Pool Executor
+# 🧵 Custom Thread Pool Executor
 
-> **Phase**: [Phase_7: Advanced Concurrency](../Readme.md)  
-> **Status**: `Not Started`  
+> **Phase**: [Phase_7: Advanced Concurrency](../Readme.md)
+> **Status**: `Completed`
 > **Target Size**: `150-200 lines`
 
-## Overview
-Build a thread pool from scratch mimicking concurrent.futures.
+## 📌 Project Overview
+ThreadPoolExecutor built from scratch with worker threads, shared task queue, Future objects (blocking get, timeout, cancel, callbacks), graceful shutdown, and exception propagation.
 
-## Core Concepts & Patterns
-- `threading, queue, Condition`
+## 📂 Structure
+```text
+custom_thread_pool/
+├── python/
+│   ├── thread_pool.py, test_thread_pool.py, interview_solution.py
+├── cpp/
+│   ├── solution.cpp, interview_solution.cpp
+└── rust/
+    ├── solution.rs, interview_solution.rs
+```
 
-## Key Rules & Constraints
-- Must implement task futures and graceful shutdown
-
-## Structure
-- [`thread_pool.py`](./thread_pool.py): Core implementation and class definitions.
-- [`test_thread_pool.py`](./test_thread_pool.py): Unit test suite and verification scenarios.
-
-## Running Tests
+## 🚀 Running
 ```bash
-python test_thread_pool.py
+python python/test_thread_pool.py
+g++ -std=c++17 -pthread cpp/solution.cpp -o cpp/solution && ./cpp/solution
+rustc rust/solution.rs -o rust/solution && ./rust/solution
 ```

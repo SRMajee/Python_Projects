@@ -1,106 +1,63 @@
-/**
- * In-Memory Key-Value Store - Concise Interview Solution (C++17)
+/*
+ * In-Memory KV Store - Interview Solution (C++)
  *
  * 1. Primary Capabilities:
- * - Fast hash-table key-value storage using std::unordered_map.
- * - TTL support via std::chrono::steady_clock.
- * - Multi-level nested transactions using a stack of hash maps with std::nullopt tombstones.
+ *   - Hash-map backed set/get/delete with nested transaction stack
+ *   - begin/commit/rollback with diff-frame isolation (tombstone deletes)
+ *   - Concurrency Extension: wrap with mutex or shared_mutex for thread-safe access
  *
  * 2. Error Handling:
- * - Rollback or commit with no active transaction throws std::runtime_error.
- * - Tombstoned keys (std::nullopt) properly mask existing parent/base keys.
+ *   - commit/rollback on empty stack throws runtime_error
+ *   - Tombstoned keys (nullopt) mask parent/base values
  *
  * 3. Out Of Scope:
- * - Multi-threaded read-write locks (std::shared_mutex).
- * - Disk persistence engine.
+ *   - TTL expiration, AOF/RDB persistence, RESP protocol, LRU eviction
  */
+#include<bits/stdc++.h>
+using namespace std;
 
-#include <iostream>
-#include <string>
-#include <unordered_map>
-#include <vector>
-#include <optional>
-#include <chrono>
-#include <cassert>
-#include <stdexcept>
-
-class InMemoryKVStore {
-    struct Entry {
-        std::string value;
-        std::optional<std::chrono::steady_clock::time_point> expiry;
-        bool is_expired() const {
-            return expiry.has_value() && std::chrono::steady_clock::now() >= *expiry;
-        }
-    };
-
-    std::unordered_map<std::string, Entry> store;
-    std::vector<std::unordered_map<std::string, std::optional<Entry>>> tx_stack;
-
+class KVStore {
+    unordered_map<string, string> store;
+    vector<unordered_map<string, optional<string>>> tx;
 public:
-    void set(const std::string& key, const std::string& val, std::optional<int> ttl_sec = std::nullopt) {
-        std::optional<std::chrono::steady_clock::time_point> exp;
-        if (ttl_sec) exp = std::chrono::steady_clock::now() + std::chrono::seconds(*ttl_sec);
-        Entry entry{val, exp};
-
-        if (!tx_stack.empty()) tx_stack.back()[key] = entry;
-        else store[key] = entry;
+    void set(const string& k, const string& v) {
+        if (!tx.empty()) tx.back()[k] = v;
+        else store[k] = v;
     }
-
-    std::optional<std::string> get(const std::string& key) {
-        for (auto it = tx_stack.rbegin(); it != tx_stack.rend(); ++it) {
-            auto found = it->find(key);
-            if (found != it->end()) {
-                if (!found->second || found->second->is_expired()) return std::nullopt;
-                return found->second->value;
-            }
+    optional<string> get(const string& k) {
+        for (auto it = tx.rbegin(); it != tx.rend(); ++it) {
+            auto f = it->find(k);
+            if (f != it->end()) return f->second;
         }
-        auto it = store.find(key);
-        if (it == store.end()) return std::nullopt;
-        if (it->second.is_expired()) { store.erase(it); return std::nullopt; }
-        return it->second.value;
+        auto it = store.find(k);
+        return it != store.end() ? optional(it->second) : nullopt;
     }
-
-    bool del(const std::string& key) {
-        if (!get(key).has_value()) return false;
-        if (!tx_stack.empty()) tx_stack.back()[key] = std::nullopt;
-        else store.erase(key);
+    bool del(const string& k) {
+        if (!get(k)) return false;
+        if (!tx.empty()) tx.back()[k] = nullopt;
+        else store.erase(k);
         return true;
     }
-
-    void begin() { tx_stack.emplace_back(); }
-
+    void begin() { tx.emplace_back(); }
     void commit() {
-        if (tx_stack.empty()) throw std::runtime_error("No active transaction.");
-        auto current_tx = std::move(tx_stack.back());
-        tx_stack.pop_back();
-
-        if (!tx_stack.empty()) {
-            for (auto& [k, v] : current_tx) tx_stack.back()[k] = std::move(v);
-        } else {
-            for (auto& [k, v] : current_tx) {
-                if (!v) store.erase(k);
-                else store[k] = std::move(*v);
-            }
-        }
+        if (tx.empty()) throw runtime_error("No transaction");
+        auto top = move(tx.back()); tx.pop_back();
+        if (!tx.empty()) for (auto& [k,v] : top) tx.back()[k] = move(v);
+        else for (auto& [k,v] : top) { if (v) store[k] = *v; else store.erase(k); }
     }
-
     void rollback() {
-        if (tx_stack.empty()) throw std::runtime_error("No active transaction.");
-        tx_stack.pop_back();
+        if (tx.empty()) throw runtime_error("No transaction");
+        tx.pop_back();
     }
 };
 
 int main() {
-    InMemoryKVStore kv;
-    kv.set("k1", "v1");
-    assert(kv.get("k1").value() == "v1");
-
-    kv.begin();
-    kv.set("k1", "v2");
-    assert(kv.get("k1").value() == "v2");
-    kv.rollback();
-    assert(kv.get("k1").value() == "v1");
-
-    std::cout << "Interview C++ InMemoryKVStore passed!" << std::endl;
-    return 0;
+    KVStore kv;
+    kv.set("a","1"); assert(kv.get("a")=="1");
+    kv.begin(); kv.set("a","2"); assert(kv.get("a")=="2");
+    kv.rollback(); assert(kv.get("a")=="1");
+    kv.begin(); kv.set("a","3"); kv.commit(); assert(kv.get("a")=="3");
+    kv.begin(); kv.set("b","4"); kv.begin(); kv.del("b"); assert(!kv.get("b"));
+    kv.rollback(); assert(kv.get("b")=="4"); kv.commit(); assert(kv.get("b")=="4");
+    cout << "Interview C++ KVStore passed!" << endl;
 }

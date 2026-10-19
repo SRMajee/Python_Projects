@@ -1,23 +1,26 @@
-# Relational Query Engine Simulation
+# 🔍 Relational Query Engine
 
-> **Phase**: [Phase_4: SDE 2 System Simulation](../Readme.md)  
-> **Status**: `Not Started`  
+> **Phase**: [Phase_4: SDE 2 System Simulation](../Readme.md)
+> **Status**: `Completed`
 > **Target Size**: `250-300 lines`
 
-## Overview
-Simulate a SQL engine executing WHERE, GROUP BY, and simple JOINS on nested dicts.
+## 📌 Project Overview
+Volcano-model iterator-based SQL query engine supporting Table Scan, Index Scan, WHERE filter, GROUP BY (COUNT/SUM/AVG/MIN/MAX), ORDER BY, LIMIT, and nested-loop INNER JOIN.
 
-## Core Concepts & Patterns
-- `iterators, B-Tree models`
+## 📂 Structure
+```text
+relational_query_engine/
+├── python/
+│   ├── query_engine.py, test_query_engine.py, interview_solution.py
+├── cpp/
+│   ├── solution.cpp, interview_solution.cpp
+└── rust/
+    ├── solution.rs, interview_solution.rs
+```
 
-## Key Rules & Constraints
-- Table scans vs Index scans must be measurable
-
-## Structure
-- [`query_engine.py`](./query_engine.py): Core implementation and class definitions.
-- [`test_query_engine.py`](./test_query_engine.py): Unit test suite and verification scenarios.
-
-## Running Tests
+## 🚀 Running
 ```bash
-python test_query_engine.py
+python python/test_query_engine.py
+g++ -std=c++17 -pthread cpp/solution.cpp -o cpp/solution && ./cpp/solution
+rustc rust/solution.rs -o rust/solution && ./rust/solution
 ```

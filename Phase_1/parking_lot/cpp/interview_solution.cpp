@@ -1,97 +1,71 @@
-/**
- * Parking Lot Design - Concise Interview Solution (C++17)
+/*
+ * Parking Lot - Interview Solution (C++)
  *
  * 1. Primary Capabilities:
- * - Class hierarchy with virtual methods for vehicle dimensions and rates.
- * - Best-fit spot assignment across multi-level structures.
- * - Dynamic fee calculation with rate multipliers.
+ *   - Vehicle polymorphism (size + rate_multiplier)
+ *   - Best-fit spot allocation (smallest compatible vacant spot)
+ *   - Duration * base_rate * multiplier fee calculation
+ *   - Concurrency Extension: mutex around park/unpark for thread-safe booking
  *
  * 2. Error Handling:
- * - Throws std::runtime_error("Parking lot full!") when no compatible spots are vacant.
- * - Throws std::runtime_error("Invalid ticket") on unparking unknown tickets.
+ *   - runtime_error on lot full or invalid ticket
  *
  * 3. Out Of Scope:
- * - Thread safety and barrier mutex synchronization.
- * - Persistent ticket database.
+ *   - Barrier gates, payment gateways, slot reservations, persistent storage
  */
+#include<bits/stdc++.h>
+using namespace std;
 
-#include <iostream>
-#include <string>
-#include <vector>
-#include <unordered_map>
-#include <memory>
-#include <cassert>
-#include <stdexcept>
+enum class SpotSize { SMALL=1, MEDIUM=2, LARGE=3 };
 
-enum class SpotSize { SMALL = 1, MEDIUM = 2, LARGE = 3 };
-
-class Vehicle {
-public:
-    std::string plate;
-    Vehicle(std::string p) : plate(std::move(p)) {}
-    virtual ~Vehicle() = default;
+struct Vehicle {
+    string plate;
     virtual SpotSize size() const = 0;
-    virtual double multiplier() const = 0;
+    virtual double rate() const = 0;
+    virtual ~Vehicle() = default;
 };
-
-class Car : public Vehicle {
-public:
-    using Vehicle::Vehicle;
-    SpotSize size() const override { return SpotSize::MEDIUM; }
-    double multiplier() const override { return 1.0; }
-};
-
-struct Ticket {
-    std::string id;
-    std::shared_ptr<Vehicle> vehicle;
-    int spot_idx;
-};
+struct Car : Vehicle { SpotSize size() const override { return SpotSize::MEDIUM; } double rate() const override { return 1.0; } };
+struct Bike : Vehicle { SpotSize size() const override { return SpotSize::SMALL; } double rate() const override { return 0.5; } };
+struct Bus : Vehicle { SpotSize size() const override { return SpotSize::LARGE; } double rate() const override { return 2.0; } };
 
 class ParkingLot {
-    std::vector<std::pair<SpotSize, std::shared_ptr<Vehicle>>> spots;
-    std::unordered_map<std::string, Ticket> tickets;
-    double base_rate{20.0};
-
+    vector<pair<SpotSize, shared_ptr<Vehicle>>> spots;
+    unordered_map<string, pair<shared_ptr<Vehicle>, int>> tickets;
+    double base{20.0};
+    mutex mtx;  // Concurrency extension
 public:
     ParkingLot(int sm, int md, int lg) {
-        for (int i = 0; i < sm; ++i) spots.push_back({SpotSize::SMALL, nullptr});
-        for (int i = 0; i < md; ++i) spots.push_back({SpotSize::MEDIUM, nullptr});
-        for (int i = 0; i < lg; ++i) spots.push_back({SpotSize::LARGE, nullptr});
+        for (int i=0;i<sm;++i) spots.push_back({SpotSize::SMALL, nullptr});
+        for (int i=0;i<md;++i) spots.push_back({SpotSize::MEDIUM, nullptr});
+        for (int i=0;i<lg;++i) spots.push_back({SpotSize::LARGE, nullptr});
     }
-
-    std::string park(std::shared_ptr<Vehicle> v) {
-        int best_idx = -1;
-        for (size_t i = 0; i < spots.size(); ++i) {
-            if (!spots[i].second && spots[i].first >= v->size()) {
-                if (best_idx == -1 || spots[i].first < spots[best_idx].first) {
-                    best_idx = i;
-                    if (spots[i].first == v->size()) break;
-                }
-            }
-        }
-        if (best_idx == -1) throw std::runtime_error("Parking lot full!");
-        spots[best_idx].second = v;
-        std::string tid = "TICK-" + v->plate;
-        tickets[tid] = {tid, v, best_idx};
+    string park(shared_ptr<Vehicle> v) {
+        lock_guard<mutex> lk(mtx);
+        int best = -1;
+        for (int i=0;i<(int)spots.size();++i)
+            if (!spots[i].second && spots[i].first >= v->size())
+                if (best<0 || spots[i].first < spots[best].first) { best=i; if (spots[i].first==v->size()) break; }
+        if (best<0) throw runtime_error("Full");
+        spots[best].second = v;
+        string tid = "T-" + v->plate;
+        tickets[tid] = {v, best};
         return tid;
     }
-
-    double unpark(const std::string& tid, double hours = 2.0) {
+    double unpark(const string& tid, double hrs=1.0) {
+        lock_guard<mutex> lk(mtx);
         auto it = tickets.find(tid);
-        if (it == tickets.end()) throw std::runtime_error("Invalid ticket");
-        spots[it->second.spot_idx].second = nullptr;
-        double fee = hours * base_rate * it->second.vehicle->multiplier();
+        if (it==tickets.end()) throw runtime_error("Bad ticket");
+        spots[it->second.second].second = nullptr;
+        double fee = hrs * base * it->second.first->rate();
         tickets.erase(it);
         return fee;
     }
 };
 
 int main() {
-    ParkingLot lot(1, 1, 1);
-    auto car = std::make_shared<Car>("KA-01-1234");
-    std::string t = lot.park(car);
-    assert(!t.empty());
+    ParkingLot lot(1,1,1);
+    auto c = make_shared<Car>(); c->plate = "KA01";
+    string t = lot.park(c);
     assert(lot.unpark(t, 2.0) == 40.0);
-    std::cout << "Interview C++ ParkingLot passed!" << std::endl;
-    return 0;
+    cout << "Interview C++ ParkingLot passed!" << endl;
 }

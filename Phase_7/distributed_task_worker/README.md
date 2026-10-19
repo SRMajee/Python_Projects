@@ -1,23 +1,26 @@
-# Distributed Task Worker (Celery Clone)
+# ⚙️ Distributed Task Worker (Celery Clone)
 
-> **Phase**: [Phase_7: Advanced Concurrency](../Readme.md)  
-> **Status**: `Not Started`  
+> **Phase**: [Phase_7: Advanced Concurrency](../Readme.md)
+> **Status**: `Completed`
 > **Target Size**: `200-250 lines`
 
-## Overview
-Implement a background daemon that pulls and executes heavy tasks across multiple processes.
+## 📌 Project Overview
+Multi-process (Python) / multi-threaded (C++/Rust) Celery-like task execution system with in-memory broker, result backend, task registry, retry with exponential backoff, and process-safe result collection.
 
-## Core Concepts & Patterns
-- `multiprocessing, IPC, IPC Queues`
+## 📂 Structure
+```text
+distributed_task_worker/
+├── python/
+│   ├── task_worker.py, test_task_worker.py, interview_solution.py
+├── cpp/
+│   ├── solution.cpp, interview_solution.cpp
+└── rust/
+    ├── solution.rs, interview_solution.rs
+```
 
-## Key Rules & Constraints
-- Must bypass the GIL to execute CPU-bound tasks
-
-## Structure
-- [`worker.py`](./worker.py): Core implementation and class definitions.
-- [`test_worker.py`](./test_worker.py): Unit test suite and verification scenarios.
-
-## Running Tests
+## 🚀 Running
 ```bash
-python test_worker.py
+python python/test_task_worker.py
+g++ -std=c++17 -pthread cpp/solution.cpp -o cpp/solution && ./cpp/solution
+rustc rust/solution.rs -o rust/solution && ./rust/solution
 ```
